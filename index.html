@@ -1,0 +1,2158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeSync</title>
+    <style>
+        body {
+            margin: auto;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-image: url('bg-photo/bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        header {
+            color: white;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 20px;
+            height: 15px;
+            cursor: pointer;
+            margin-right: 23px;
+            z-index: 1000;
+        }
+        .hamburger .bar {
+            width: 100%;
+            height: 2px;
+            background-color: gold;
+            margin-left: 10px;
+            margin-right: 10px; 
+            transition: all 0.3s ease-in-out;
+        }
+        .hamburger.active .bar:nth-child(1) {
+            transform: translateY(6px) rotate(45deg);
+        }
+        .hamburger.active .bar:nth-child(2) {
+            opacity: 0;
+        }
+        .hamburger.active .bar:nth-child(3) {
+            transform: translateY(-6px) rotate(-45deg);
+        }
+        .logo-image {
+            width: 75px;
+            height: 68px;
+            margin-left: 10px;
+            margin-top: 1px;
+        }
+        #searchInput {
+            padding: 5px 43px;
+            border: 1px solid gold;
+            border-radius: 15px;
+            width: 120px;
+            background-color: transparent;
+            color: white;
+            margin-right: 10px;
+        }
+        .search-container {
+            display: flex;
+            align-items: center;
+        }
+        .input-container {
+            position: relative; 
+        }
+        .input-container input[type="text"] {
+            padding: 5px 10px 5px 40px; 
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 200px; 
+            transition: padding-left 0.3s; 
+        }
+        .at-magnifying-glass {
+            position: absolute; 
+            left: 20px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            width: 20px; 
+            height: 17px; 
+            color: rgb(254, 236, 131); 
+            pointer-events: none; 
+            transition: left 0.3s;
+        }
+        .input-container input[type="text"]:focus + .at-magnifying-glass {
+            left: calc(100% - 45px); 
+            color: white; 
+        }
+        input[type="text"] {
+            padding: 1px 10px;
+            border: 1px solid gold;
+            border-radius: 1px;
+            width: 150px;
+            background-color: transparent;
+            color: white;
+            margin: 0px 5px;
+        }
+        .exercisesPage select {
+            padding: 1px 10px;
+            border: 1px solid gold;
+            background-color: transparent;
+            color: white;
+            margin: 0px 5px;
+        }
+        option {
+            color: black;
+        }
+        button {
+            background-color: #ffffff;
+            color: #0e3b5f;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 150px;
+            border-radius: 20px;
+            transition: background-color 0.3s, opacity 0.5s ease-out 0.4s, transform 0.5s ease-out 0.4s;
+            margin-top: 10px; 
+            border-radius: 15px;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        button:hover {
+            background-color: #d5b604;
+            color: white;
+        }
+        main {
+            margin-top: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 70vh;
+            color: white;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+        main.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .content-wrapper h2 {
+            margin-top: -200px;
+            font-size: 90px;
+            font-family: Verdana, sans-serif;
+            color: white;
+            text-decoration: underline; 
+            text-decoration-color: gold;
+            text-underline-offset: 25px;
+            margin-bottom: 30px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out 0.2s, transform 0.5s ease-out 0.2s;
+        }
+        main.show h2 {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        main.show button {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .content-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #main-content, #topics-content, .developers {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+        }
+        #main-content {
+            transform: translateX(0);
+        }
+        #topics-content {
+            transform: translateX(100%);
+        }
+        .developers {
+            transform: translateY(100%);
+        }
+        .developers.show {
+            transform: translateY(0);
+        }
+        .topics {
+            float: left; 
+            text-align: left;
+            text-indent: 2em;
+            background-color: white; 
+            width: -200; 
+            padding-top: 20px;
+            color: #171659; 
+            border-radius: 20px;
+            padding: 0;
+            margin: 0;
+        }
+        .topics ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: left;
+        }
+        .topics li {
+            margin: 1px -20px;
+        }
+        .topics a {
+            display: block;
+            padding: 3px 10px;
+            color: #171659;
+            font-size: 15px; 
+            font-style: 'Lucida Handwriting', cursive;
+            text-decoration: none;
+        }
+        .topics a:hover {
+            background: #114670;
+            color: white; 
+        }
+        #contentUL .active {
+            background: #0e3b5f;
+            color: white; 
+        }
+        #rcorners2 {
+            border-radius: 5px;
+            border: 3px solid gold;
+            padding: 0px;
+            width: 376px;
+            height: 70%;
+            margin-left: 10px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        } 
+        .popup-menu {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100%;
+            background-color: rgba(14, 58, 93, 0.95);
+            z-index: 999;
+            transition: left 0.3s ease-in-out;
+        }
+        .popup-menu.active {
+            left: 0;
+        }
+        .popup-menu ul {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 100px;
+        }
+        .popup-menu li {
+            padding: 15px;
+            border-bottom: 1px solid #ffffff1a;
+        }
+        .popup-menu a { 
+            color: gold;
+            text-decoration: none;
+            font-size: 18px;
+            display: block;
+            transition: background-color 0.3s;
+        }
+        .popup-menu a:hover {
+            background-color: #ffffff1a;
+        }
+        .developers {
+            display: none; 
+            text-align: center;
+            z-index: 2;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 60px 20px;
+            box-sizing: border-box;
+            background-color: rgba(0, 0, 0, 0.6);
+            opacity: 1;
+            transform: translateY(100%);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+        .developers.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .developers h1 {
+            color: goldenrod;
+            margin-top: 25px; 
+        }
+        figure {
+            text-align: center; 
+            margin: 10px; 
+            width: 200px; 
+            color: white;
+        }
+        .figure-container {
+            display: flex;
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 20px; 
+            margin: 20px 0px; 
+        } 
+        .developer-image {
+            width: 130px;  
+            height: auto;  
+            border-radius: 50%;  
+            margin-bottom: 10px;  
+        }
+        .submitted-to-container {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+        }
+        .submitted-to-container h2 {
+            font-size: 16px;
+            text-decoration: none; 
+            margin-top: 10px; 
+        }
+        .submitted-to-container img {
+            width: 130px; 
+            height: auto;
+            border-radius: 50%;
+        }
+        .topicsPages {
+            display: none;
+            flex-wrap: wrap;
+            position: relative; 
+            z-index: 1;
+            color: #171659; 
+            background-color: white;
+            border: 3px solid #171659;
+            border-radius: 10px;
+            margin-left: 410px;
+            margin-right: 306px;
+            margin-top: 15px;
+            opacity: 0.9;
+            width: 46%;
+            height: 74.3%;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .topicsPages h3, .topicsPages h4 {
+            color: #171659;
+            font-size: 30px;
+            margin-top: 10px;
+            margin-bottom: 30px;
+        }
+        .topicsPages ul {
+            text-align: left;
+        }
+        .topicsPages li {
+            margin-bottom: 10px;
+        }
+        .topicsPages p {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+        .example {
+            background-color: #e0e0e0;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+          	border-radius: 10px;
+        }
+        .example code {
+            background-color: #1f1f1f;
+            display: block;
+            white-space: pre-wrap;
+            font-family: monospace;
+          	text-align: left;
+          	margin: 10px;
+            padding: 20px;
+            color: white;
+          	border-radius: 30px;
+        }
+      	.example p {
+      		font-weight: bold;
+          	font-size: 15px;
+      	}
+        .see-more {
+            display: inline-block;
+            margin-top: 10px;
+          	margin-bottom: 10px;
+            color: #0e3b5f;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .see-more:hover {
+            text-decoration: underline;
+        }
+      	.expselector {
+            color: #ebbb54;
+        }
+        .bracket {
+            color: rgb(255, 255, 23);
+        }
+        .property {
+            color: lightcoral;
+        }
+        .value {
+            color: lightblue;
+        }
+        .tag {
+            color: #5375ff;
+        }
+        .mission-vision {
+            display: none;
+       		position: absolute;
+        	top: 20px;
+    		right: 10px;
+    		background-color: #0e3b5f;
+        	color: white;
+        	padding: 10px;
+    		border-radius: 10px;
+    		width: 17%;
+    		text-align: center;
+          	transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+          	font-size: 14px;
+          	color: gold;
+    	}
+        .exercisesPage {
+            display: none; 
+            z-index: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 30px 80px;
+            box-sizing: border-box;
+            background-color: rgba(0, 0, 0, 0.6);
+            opacity: 1;
+            transform: translateY(200%);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+            color: white;
+            text-align: left;
+            overflow-x: auto;
+        }
+        .exercisesPage button {
+            display: flex;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+            opacity: 1;
+        }
+        .exercise-button {
+            margin-top: 50px;
+        }
+        .exercisesPage .main-button {
+            margin-top: 30px;
+            margin-bottom: 40px;
+        }
+        .exercisesPage.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0%);
+        }
+        .exercisesPage h3 {
+            display: block;
+            font-size: 2em;
+            margin-block-start: 2em;
+            margin-block-end: 1em;
+            margin-inline-start: 3px;
+            margin-inline-end: 0px;
+            font-weight: bold;
+            unicode-bidi: isolate;
+            color: gold;
+        }
+        .exercisesPage h4 {
+            display: block;
+            font-size: 1.7em;
+            margin-block-start: 1.33em;
+            margin-block-end: 1.33em;
+            margin-inline-start: 0px;
+            margin-inline-end: 0px;
+            font-weight: bold;
+            unicode-bidi: isolate;
+            color: gold;
+            margin-top: 70px;
+        }
+        #quizResult table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        #quizResult th, #quizResult td {
+            padding: 10px;
+            border: 1px solid red;
+            text-align: left;
+        }
+        #quizResult th {
+            background-color: #0e3b5f;
+            color: gold;
+        }
+        #quizResult tr:hover {
+            background-color: green;
+        }
+        h2 {
+            display: block;
+            font-size: 1.8em;
+            margin-block-start: 0.83em;
+            margin-block-end: 0.83em;
+            margin-inline-start: 0px;
+            margin-inline-end: 0px;
+            font-weight: bold;
+            unicode-bidi: isolate;
+            color: goldenrod;
+        }
+        .output-image {
+            width: 90%;  
+            height: auto;  
+            margin-bottom: 18px;  
+        }
+    	</style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <div class="hamburger" onclick="toggleMenu()">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            <img src="icon/codesync.png" alt="CodeSync Logo" class="logo-image">
+        </div>
+        <div class="search-container">
+            <div class="input-container">
+                <input type="text" id="searchInput" onkeyup="searchFunction()" placeholder="Search..." onfocus="moveIcon(true)" onblur="moveIcon(false)">
+                <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5" width="24" height="24" color="#000000" class="at-magnifying-glass">
+                    <defs>
+                        <style>.cls-6374f8d9b67f094e4896c660-1{fill:none;stroke:currentColor;stroke-miterlimit:10;}</style>
+                    </defs>
+                    <circle class="cls-6374f8d9b67f094e4896c660-1" cx="9.14" cy="9.14" r="7.64"></circle>
+                    <line class="cls-6374f8d9b67f094e4896c660-1" x1="22.5" y1="22.5" x2="14.39" y2="14.39"></line>
+                </svg>
+            </div>
+        </div>
+    </header>
+
+    <div class="popup-menu">
+        <ul>
+            <li><a href="#" onclick="showHome()">Home</a></li>
+            <li><a href="#" onclick="showTopics()">CSS Topics</a></li>
+            <li><a href="#" onclick="showExercises()">CSS Exercises</a></li>
+            <li><a href="#developersPage" class="developers-button" onclick="showDevelopers()">Developers</a></li>
+        </ul>
+    </div>
+
+    <div class="content-wrapper">
+        <main id="main-content">
+            <h2> CSS Tutorial</h2>
+            <p>Come learn to style web pages with us.</p>
+            <button onclick="showTopics()">Learn CSS</button>
+        </main> 
+
+        <div class="topics" id="topics-content">
+            <h1>CSS Topics</h1> 
+            <div id="rcorners2"> 
+                <ul id="contentUL">
+                    <b>
+                    <li><a href="#introduction" class="active" onclick="showTopic('introduction')">Introduction to CSS</a></li>
+                    <li><a href="#selectors" onclick="showTopic('selectors')">CSS Selectors</a></li>
+                    <li><a href="#syntax" onclick="showTopic('syntax')">CSS Syntax</a></li>
+                    <li><a href="#How To Add CSS" onclick="showTopic('How To Add CSS')">CSS How To Add CSS</a></li>
+                    <li><a href="#comments" onclick="showTopic('comments')">CSS Comments</a></li>
+                    <li><a href="#colors" onclick="showTopic('colors')">CSS Colors</a></li>
+                    <li><a href="#background" onclick="showTopic('backgrounds')">CSS Backgrounds</a></li>
+                    <li><a href="#borders" onclick="showTopic('borders')">CSS Borders</a></li>
+                    <li><a href="#margins" onclick="showTopic('margin')">CSS Margins</a></li>
+                    <li><a href="#padding" onclick="showTopic('padding')">CSS  Padding</a></li>
+                    <li><a href="#height, width and max-width" onclick="showTopic('height, width and max-width')">CSS Height, Width and Max-width</a></li>
+                    <li><a href="#box model" onclick="showTopic('box model')">CSS Box Model</a></li>
+                    <li><a href="#outline" onclick="showTopic('outline')">CSS Outline</a></li>
+                    <li><a href="#text" onclick="showTopic('text')">CSS Text</a></li>
+                    <li><a href="#fonts" onclick="showTopic('fonts')">CSS Fonts</a></li>
+                    <li><a href="#icons" onclick="showTopic('icons')">CSS Icons</a></li>
+                    <li><a href="#links" onclick="showTopic('links')">CSS Links</a></li>
+                    <li><a href="#list" onclick="showTopic('list')">CSS Lists</a></li>
+                    <li><a href="#tables" onclick="showTopic('tables')">CSS Tables</a></li>
+                    <li><a href="#display" onclick="showTopic('display')">CSS Layout-The display Property</a></li>
+                    <li><a href="#position" onclick="showTopic('position')">CSS Layout-The position Property</a></li>
+                    <li><a href="#Align" onclick="showTopic('Align')">CSS Layout-Horizontal and Vertical Align </a></li>
+                    <li><a href="#bttons" onclick="showTopic('bttons')">CSS Buttons</a></li>
+                    <li><a href="#images" onclick="showTopic('images')">CSS Images</a></li>
+                    <li><a href="#opacity" onclick="showTopic('opacity')">CSS Opacity</a></li>
+                    <li><a href="#float" onclick="showTopic('float')">CSS Float</a></li>
+                    </b>
+                </ul>
+            </div> 
+        </div> 
+      
+        <div class="mission-vision" id="missionVision">
+       		<h3>RTU</h3>
+            <h3>MISSION</h3>
+            <p>To produce competent and socially responsible professionals through innovative instructions, high- impact research, and sustainable extension services responsive to the diverse needs of glocal communities.</p>
+        	<p></p>
+            <h3>VISION</h3>
+            <p>A smart and transnational university.</p>
+        	<p></p>
+        	<h3>PHILOSOPHY</h3>
+            <p>The Rizal Technological University believes in nurturing the creative potentials of Filipinos to excel in a dynamic world order and advocates commitment to global peace and sustainable development along with sense of moral responsibility and cultural patronage.</p>
+        </div>
+
+        <div class="topicsPages" id="topics-pages"> 
+            <div class="introduction" id="introductionPage"> 
+                <h3>Introduction to CSS</h3>
+                <p>CSS stands for Cascading Style Sheets. It is a style sheet language used for describing the presentation of a document written in HTML or XML. CSS is designed to enable  the separation of presentation and content, including layout, colors, and fonts.</p>
+                <ul>
+                    <li>CSS describes how HTML elements are to be displayed on screen, paper, or in other media</li>
+                    <li>CSS saves a lot of work. It can control the layout of multiple web pages all at once</li>
+                    <li>External stylesheets are stored in CSS files</li>
+                </ul>
+                <a href="https://www.w3schools.com/css/css_intro.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+<span class="expselector">body</span> <span class="bracket">{</span>
+<span class="property">    background-color</span>: <span class="value">lightblue</span>;
+<span class="bracket">}</span>
+
+<span class="expselector">h1</span> <span class="bracket">{</span>
+<span class="property">    color</span>: <span class="value">white</span>;
+<span class="property">    text-align</span>: <span class="value">center</span>;
+<span class="bracket">}</span>
+
+<span class="expselector">p</span> <span class="bracket">{</span>
+<span class="property">    font-family</span>: <span class="value">verdana</span>;
+<span class="property">    font-size</span>: <span class="value">20px</span>;
+<span class="bracket">}</span>
+                    </code>
+                    <br>
+                    <p>Output: </p>
+                    <img src="img-outputs/introduction.png" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="selectors" id="selectorsPage">
+                <h4>CSS Selectors</h4>
+                <p>CSS selectors are used to "find" (or select) the HTML elements you want to style.</p>
+                <ul>
+                    <li>Element Selector: selects all elements with the specified element name.</li>
+                    <li>ID Selector: uses the id attribute of an HTML element to select a specific element.</li>
+                    <li>Class Selector: selects elements with a specific class attribute.</li>
+                </ul>
+                <a href="https://www.w3schools.com/css/css_selectors.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+/* Element Selector */
+<span class="expselector">p</span> <span class="bracket">{</span>
+<span class="property">    text-align</span>: <span class="value">center</span>;
+<span class="property">    color</span>: <span class="value">red</span>;
+<span class="bracket">}</span> 
+
+/* ID Selector */
+<span class="expselector">#para1</span> <span class="bracket">{</span>
+<span class="property">    text-align</span>: <span class="value">center</span>;
+<span class="property">    color</span>: <span class="value">red</span>;
+<span class="bracket">}</span> 
+
+/* Class Selector */
+<span class="expselector">.center</span> <span class="bracket">{</span>
+<span class="property">    text-align</span>: <span class="value">center</span>;
+<span class="property">    color</span>: <span class="value">red</span>;
+<span class="bracket">}</span> 
+                    </code>
+                    <br>
+                    <p>Output: </p>
+                    <img src="img-outputs/selectors.png" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="syntax" id="syntaxPage">
+                <h4>CSS Syntax</h4>
+                <p>A CSS rule consists of a selector and a declaration block.</p>
+                <ul>
+                    <li>The selector points to the HTML element you want to style</li>
+                    <li>The declaration block contains one or more declarations separated by semicolons</li>
+                    <li>Each declaration includes a CSS property name and a value, separated by a colon</li>
+                </ul>
+                <a href="https://www.w3schools.com/css/css_syntax.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+<span class="expselector">selector</span> <span class="bracket">{</span>
+<span class="property">    property</span>: <span class="value">value</span>;
+<span class="property">    property</span>: <span class="value">value</span>;
+<span class="bracket">}</span> 
+                    </code>
+                    <br>
+                    <p>Output: </p>
+                    <img src="img-outputs/syntax.PNG" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="howToAddCSS" id="How To Add CSSPage">
+                <h4>How To Add CSS</h4>
+                <p>There are three ways of inserting a style sheet:</p>
+                <ul>
+                    <li>External CSS: with a link element in the HTML page</li>
+                    <li>Internal CSS: using a style element in the HTML page</li>
+                    <li>Inline CSS: using the style attribute inside HTML elements</li>
+                </ul>
+                <a href="https://www.w3schools.com/css/css_howto.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example (External CSS):</p>
+                    <code>
+&lt;<span class="tag">head</span>&gt;
+    &lt;<span class="tag">link </span><span class="property">rel</span>=<span class="value">"stylesheet"</span> <span class="property">type</span>=<span class="value">"text/css"</span> <span class="property">href</span>=<span class="value">"mystyle.css"</span>&gt;
+&lt;<span class="tag">/head</span>&gt;
+                    </code>
+                    <p>Output: </p>
+                    <img src="img-outputs/HowtoaddCss.PNG" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="comments" id="commentsPage">
+                <h4>CSS Comments</h4>
+                <p>CSS comments are used to explain the code and may help when you edit the source code at a later date. Comments are ignored by browsers.</p>
+                <a href="https://www.w3schools.com/css/css_comments.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+/* This is a single-line comment */
+<span class="expselector">p</span> <span class="bracket">{</span>
+<span class="property">    color</span>: <span class="value">red</span>;
+<span class="bracket">}</span> 
+
+/* This is
+a multi-line
+comment */
+                    </code>
+                    <p>Output: </p>
+                    <img src="img-outputs/comments.PNG" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="colors" id="colorsPage">
+                <h4>CSS Colors</h4>
+                <p>Colors in CSS can be specified in different ways:</p>
+                <ul>
+                    <li>By color names</li>
+                    <li>As RGB values</li>
+                    <li>As hexadecimal values</li>
+                    <li>As HSL values (CSS3)</li>
+                </ul>
+                <a href="https://www.w3schools.com/css/css_colors.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+/* Color name */
+<span class="expselector">h1</span> <span class="bracket">{</span>
+<span class="property">    color</span>: <span class="value">blue</span>;
+<span class="bracket">}</span> 
+
+/* RGB value */
+<span class="expselector">h2</span> <span class="bracket">{</span>
+<span class="property">    color</span>: <span class="value">rgb(255, 0, 0)</span>;
+<span class="bracket">}</span> 
+
+/* Hex value */
+<span class="expselector">h3</span> <span class="bracket">{</span>
+<span class="property">    color</span>: <span class="value">#00ff00</span>;
+<span class="bracket">}</span> 
+                    </code>
+                    <br>
+                    <p>Output: </p>
+                    <img src="img-outputs/colors.png" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="backgrounds" id="backgroundsPage">
+                <h4>CSS Backgrounds</h4>
+                <p>The CSS background properties are used to define the background effects for elements.</p>
+                <ul>
+                    <li>background-color</li>
+                    <li>background-image</li>
+                    <li>background-repeat</li>
+                    <li>background-attachment</li>
+                    <li>background-position</li>
+                </ul>
+                <a href="https://www.w3schools.com/css/css_background.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+<span class="expselector">body</span> <span class="bracket">{</span>
+<span class="property">    background-color</span>: <span class="value">lightblue</span>;
+<span class="property">    background-image</span>: <span class="value">url("img_tree.png")</span>;
+<span class="property">    background-repeat</span>: <span class="value">no-repeat</span>;
+<span class="property">    background-position</span>: <span class="value">right top</span>;
+<span class="bracket">}</span> 
+                    </code>
+                    <p>Output: </p>
+                    <img src="img-outputs/Background.png" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="borders" id="bordersPage">
+                <h4>CSS Borders</h4>
+                <p>The CSS border properties allow you to specify the style, width, and color of an element's border.</p>
+                <a href="https://www.w3schools.com/css/css_border.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+<span class="expselector">p</span> <span class="bracket">{</span>
+<span class="property">    border-style</span>: <span class="value">solid</span>;
+<span class="property">    border-width</span>: <span class="value">5px</span>;
+<span class="property">    border-color</span>: <span class="value">red</span>;
+<span class="bracket">}</span> 
+
+/* Shorthand property */
+<span class="expselector">p</span> <span class="bracket">{</span>
+<span class="property">    border</span>: <span class="value">5px solid red</span>;
+<span class="bracket">}</span> 
+                    </code>
+                    <br>
+                    <p>Output: </p>
+                    <img src="img-outputs/borders.png" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="margins" id="marginPage">
+                <h4>CSS Margins</h4>
+                <p>Margins are used to create space around elements, outside of any defined borders.</p>
+                <a href="https://www.w3schools.com/css/css_margin.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+<span class="expselector">p</span> <span class="bracket">{</span>
+<span class="property">    margin-top</span>: <span class="value">100px</span>;
+<span class="property">    margin-bottom</span>: <span class="value">100px</span>;
+<span class="property">    margin-right</span>: <span class="value">150px</span>;
+<span class="property">    margin-left</span>: <span class="value">80px</span>;
+<span class="bracket">}</span> 
+
+/* Shorthand property */
+<span class="expselector">p</span> <span class="bracket">{</span>
+<span class="property">    margin</span>: <span class="value">100px 150px 100px 80px</span>;
+<span class="bracket">}</span> 
+                    </code>
+                    <br>
+                    <p>Output: </p>
+                    <img src="img-outputs/margins.png" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="padding" id="paddingPage">
+                <h4>CSS Padding</h4>
+                <p>Padding is used to create space around an element's content, inside of any defined borders.</p>
+                <a href="https://www.w3schools.com/css/css_padding.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+<span class="expselector">div</span> <span class="bracket">{</span>
+<span class="property">    padding-top</span>: <span class="value">50px</span>;
+<span class="property">    padding-right</span>: <span class="value">30px</span>;
+<span class="property">    padding-bottom</span>: <span class="value">50px</span>;
+<span class="property">    padding-left</span>: <span class="value">80px</span>;
+<span class="bracket">}</span> 
+
+/* Shorthand property */
+<span class="expselector">div</span> <span class="bracket">{</span>
+<span class="property">    padding</span>: <span class="value">50px 30px 50px 80px</span>; 
+<span class="bracket">}</span> 
+                    </code>
+                    <br>
+                    <p>Output: </p>
+                    <img src="img-outputs/padding.png" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="heightWidthMaxWidth" id="height, width and max-widthPage">
+                <h4>CSS Height, Width and Max-width</h4>
+                <p>The height and width properties are used to set the height and width of an element. The max-width property is used to set the maximum width of an element.</p>
+                <a href="https://www.w3schools.com/css/css_dimension.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+<span class="expselector">div</span> <span class="bracket">{</span>
+<span class="property">    height</span>: <span class="value">200px</span>;
+<span class="property">    width</span>: <span class="value">50%</span>;
+<span class="property">    max-width</span>: <span class="value">500px</span>;
+<span class="bracket">}</span> 
+                    </code>
+                    <br>
+                    <p>Output: </p>
+                    <img src="img-outputs/height, width, max-width.png" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="boxModel" id="box modelPage">
+                <h4>CSS Box Model</h4>
+                <p>All HTML elements can be considered as boxes. The CSS box model is essentially a box that wraps around every HTML element. It consists of: margins, borders, padding, and the actual content.</p>
+                <a href="https://www.w3schools.com/css/css_boxmodel.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+<span class="expselector">div</span> <span class="bracket">{</span>
+<span class="property">    width</span>: <span class="value">300px</span>;
+<span class="property">    border</span>: <span class="value">15px solid green</span>;
+<span class="property">    padding</span>: <span class="value">50px</span>;
+<span class="property">    margin</span>: <span class="value">20px</span>;
+<span class="bracket">}</span> 
+                    </code>
+                    <br>
+                    <p>Output: </p>
+                    <img src="img-outputs/box model.png" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="outline" id="outlinePage">
+                <h4>CSS Outline</h4>
+                <p>An outline is a line drawn outside the element's border. It differs from borders in that it does not take up space and can overlap other content.</p>
+                <a href="https://www.w3schools.com/css/css_outline.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+<span class="expselector">p</span> <span class="bracket">{</span>
+<span class="property">    border</span>: <span class="value">1px solid red</span>;
+<span class="property">    outline</span>: <span class="value">green dotted thick</span>;
+<span class="bracket">}</span> 
+                    </code>
+                    <br>
+                    <p>Output: </p>
+                    <img src="img-outputs/outline.png" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="text" id="textPage">
+                <h4>CSS Text</h4>
+                <p>CSS has a lot of properties for formatting text.</p>
+                <a href="https://www.w3schools.com/css/css_text.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+<span class="expselector">h1</span> <span class="bracket">{</span>
+<span class="property">    color</span>: <span class="value">blue</span>;
+<span class="property">    text-align</span>: <span class="value">center</span>;
+<span class="property">    text-decoration</span>: <span class="value">underline</span>;
+<span class="bracket">}</span> 
+
+<span class="expselector">p</span> <span class="bracket">{</span>
+<span class="property">    font-family</span>: <span class="value">verdana</span>;
+<span class="property">    font-size</span>: <span class="value">20px</span>;
+<span class="property">    text-transform</span>: <span class="value">uppercase</span>;
+<span class="bracket">}</span> 
+                    </code>
+                    <br>
+                    <p>Output: </p>
+                    <img src="img-outputs/text.png" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="fonts" id="fontsPage">
+                <h4>CSS Fonts</h4>
+                <p>The CSS font properties define the font family, boldness, size, and the style of a text.</p>
+                <a href="https://www.w3schools.com/css/css_font.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+<span class="expselector">p</span> <span class="bracket">{</span>
+<span class="property">    font-family</span>: <span class="value">"Times New Roman", Times, serif</span>;
+<span class="property">    font-style</span>: <span class="value">italic</span>;
+<span class="property">    font-weight</span>: <span class="value">bold</span>;
+<span class="property">    font-size</span>: <span class="value">16px</span>;
+<span class="bracket">}</span> 
+                    </code>
+                    <br>
+                    <p>Output: </p>
+                    <img src="img-outputs/fonts.png" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="icons" id="iconsPage">
+                <h4>CSS Icons</h4>
+                <p>Icons can easily be added to your HTML page, using an icon library like Font Awesome.</p>
+                <a href="https://www.w3schools.com/css/css_icons.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+&lt;!-- Add icon library --&gt;
+&lt;<span class="tag">link</span> <span class="property">rel</span>=<span class="value">"stylesheet"</span> <span class="property">href</span>=<span class="value">"https://cdnjs.cloudflare.com/ajax/libs/ font-awesome/4.7.0/css/font-awesome.min.css"</span>&gt;
+
+&lt;!-- Use icon --&gt;
+&lt;<span class="tag">i</span> <span class="property">class="fa fa-cloud"</span>&gt;&lt;<span class="tag">/i</span>&gt;
+&lt;<span class="tag">i</span> <span class="property">class="fa fa-heart"</span>&gt;&lt;<span class="tag">/i</span>&gt;
+&lt;<span class="tag">i</span> <span class="property">class="fa fa-car"</span>&gt;&lt;<span class="tag">/i</span>&gt;
+&lt;<span class="tag">i</span> <span class="property">class="fa fa-file"</span>&gt;&lt;<span class="tag">/i</span>&gt;
+&lt;<span class="tag">i</span> <span class="property">class="fa fa-bars"</span>&gt;&lt;<span class="tag">/i</span>&gt;
+                    </code>
+                    <br>
+                    <p>Output: </p>
+                    <img src="img-outputs/icons.png" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="links" id="linksPage">
+                <h4>CSS Links</h4>
+                <p>Links can be styled with any CSS property (e.g. color, font-family, background, etc.).</p>
+                <a href="https://www.w3schools.com/css/css_link.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+/* unvisited link */
+<span class="expselector">a:link</span> <span class="bracket">{</span>
+<span class="property">    color</span>: <span class="value">red</span>;
+<span class="bracket">}</span> 
+
+/* visited link */
+<span class="expselector">a:visited</span> <span class="bracket">{</span>
+<span class="property">    color</span>: <span class="value">green</span>;
+<span class="bracket">}</span> 
+
+/* mouse over link */
+<span class="expselector">a:hover</span> <span class="bracket">{</span>
+<span class="property">    color</span>: <span class="value">hotpink</span>;
+<span class="bracket">}</span> 
+
+/* selected link */
+<span class="expselector">a:active</span> <span class="bracket">{</span>
+<span class="property">    color</span>: <span class="value">blue</span>;
+<span class="bracket">}</span> 
+                    </code>
+                    <p>Output: </p>
+                    <img src="img-outputs/Links.PNG" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="lists" id="listPage">
+                <h4>CSS Lists</h4>
+                <p>CSS has properties for specifying the type of bullet or numbering in a list, and the position of the bullet or number.</p>
+                <a href="https://www.w3schools.com/css/css_list.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+<span class="expselector">ul</span> <span class="bracket">{</span>
+<span class="property">    list-style-type</span>: <span class="value">circle</span>;
+<span class="bracket">}</span>
+
+<span class="expselector">ol</span> <span class="bracket">{</span>
+<span class="property">    list-style-type</span>: <span class="value">upper-roman</span>;
+<span class="bracket">}</span>
+                    </code>
+                    <br>
+                    <p>Output: </p>
+                    <img src="img-outputs/lists.png" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="tables" id="tablesPage">
+                <h4>CSS Tables</h4>
+                <p>CSS can be used to enhance the appearance of HTML tables.</p>
+                <a href="https://www.w3schools.com/css/css_table.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+<span class="expselector">table</span> <span class="bracket">{</span>
+<span class="property">    border-collapse</span>: <span class="value">collapse</span>;
+<span class="property">    width</span>: <span class="value">100%</span>;
+<span class="bracket">}</span> 
+
+<span class="expselector">th, td</span> <span class="bracket">{</span>
+<span class="property">    text-align</span>: <span class="value">left</span>;
+<span class="property">    padding</span>: <span class="value">8px</span>;
+<span class="bracket">}</span> 
+
+<span class="expselector">tr:nth-child(even)</span> <span class="bracket">{</span>
+<span class="property">    background-color</span>: <span class="value">#f2f2f2</span>;
+<span class="bracket">}</span> 
+                    </code>
+                    <p>Output: </p>
+                    <img src="img-outputs/table.PNG" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="display" id="displayPage">
+                <h4>CSS Layout - The display Property</h4>
+                <p>The display property specifies if/how an element is displayed.</p>
+                <a href="https://www.w3schools.com/css/css_display_visibility.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+<span class="expselector">p</span> <span class="bracket">{</span>
+<span class="property">    display</span>: <span class="value">inline</span>;
+<span class="bracket">}</span> 
+
+<span class="expselector">div</span> <span class="bracket">{</span>
+<span class="property">    display</span>: <span class="value">none</span>;
+<span class="bracket">}</span> 
+                    </code>
+                    <p>Output: </p>
+                    <img src="img-outputs/inline.PNG" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="position" id="positionPage">
+                <h4>CSS Layout - The position Property</h4>
+                <p>The position property specifies the type of positioning method used for an element.</p>
+                <a href="https://www.w3schools.com/css/css_positioning.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+<span class="expselector">div</span> <span class="bracket">{</span>
+<span class="property">    position</span>: <span class="value">relative</span>;
+<span class="property">    left</span>: <span class="value">30px</span>;
+<span class="property">    top</span>: <span class="value">20px</span>;
+<span class="bracket">}</span> 
+                    </code>
+                    <p>Output: </p>
+                    <img src="img-outputs/position.PNG" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="align" id="AlignPage">
+                <h4>CSS Layout - Horizontal & Vertical Align</h4>
+                <p>CSS offers several ways to align elements both horizontally and vertically.</p>
+                <a href="https://www.w3schools.com/css/css_align.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+/* Center align text */
+<span class="expselector">h1</span> <span class="bracket">{</span>
+<span class="property">    text-align</span>: <span class="value">center</span>;
+<span class="property">    vertical-align</span>: <span class="value">middle</span>;
+<span class="bracket">}</span> 
+
+/* Center an element */
+<span class="expselector">.center</span> <span class="bracket">{</span>
+<span class="property">    margin</span>: <span class="value">auto</span>;
+<span class="property">    width</span>: <span class="value">50%</span>;
+<span class="bracket">}</span> 
+
+/* Center vertically */
+<span class="expselector">.vertical-center</span> <span class="bracket">{</span>
+<span class="property">    display</span>: <span class="value">flex</span>;
+<span class="property">    justify-content</span>: <span class="value">center</span>;
+<span class="property">    align-items</span>: <span class="value">center</span>;
+<span class="property">    height</span>: <span class="value">200px</span>;
+<span class="bracket">}</span> 
+                    </code>
+                    <p>Output: </p>
+                    <img src="img-outputs/verticalhorizontal.PNG" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="buttons" id="bttonsPage">
+                <h4>CSS Buttons</h4>
+                <p>CSS can be used to style buttons, making them more attractive and interactive.</p>
+                <a href="https://www.w3schools.com/css/css3_buttons.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+<span class="expselector">.button</span>  <span class="bracket">{</span>
+<span class="property">    background-color</span>: <span class="value">#4CAF50</span>;
+<span class="property">    border</span>: <span class="value">none</span>;
+<span class="property">    color</span>: <span class="value">white</span>;
+<span class="property">    padding</span>: <span class="value">15px 32px</span>;
+<span class="property">    text-align</span>: <span class="value">center</span>;
+<span class="property">    text-decoration</span>: <span class="value">none</span>;
+<span class="property">    display</span>: <span class="value">inline-block</span>;
+<span class="property">    font-size</span>: <span class="value">16px</span>;
+<span class="property">    margin</span>: <span class="value">4px 2px</span>;
+<span class="property">    cursor</span>: <span class="value">pointer</span>;
+<span class="bracket">}</span> 
+
+<span class="expselector">.button:hover</span> <span class="bracket">{</span>
+<span class="property">    background-color</span>: <span class="value">#45a049</span>;
+<span class="bracket">}</span> 
+                    </code>
+                    <br>
+                    <p>Output: </p>
+                    <img src="img-outputs/buttons.png" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+			<div class="images" id="imagesPage">
+                <h4>CSS Images</h4> 
+          		<p>CSS can be used to style images, making it more visually appealing.</p>
+                <a href="https://www.w3schools.com/css/css3_images.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+<span class="expselector">img</span> <span class="bracket">{</span>
+<span class="property">    display</span>: <span class="value">block</span>;
+<span class="property">    margin-left</span>: <span class="value">auto</span>;
+<span class="property">    margin-right</span>: <span class="value">auto</span>;
+<span class="property">    border-radius</span>: <span class="value">30px</span>;
+<span class="property">    padding</span>: <span class="value">5px</span>;
+<span class="property">    width</span>: <span class="value">150px</span>;
+<span class="bracket">}</span> 
+                    </code>
+                    <br>
+                    <p>Output: </p>
+                    <img src="img-outputs/images.png" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+
+            <div class="opacity" id="opacityPage">
+                <h4>CSS Opacity</h4>
+                <p>CSS opacity specifies the opacity/transparency of an element. The opacity property can take a value from 0.0 - 1.0. The lower the value, the more transparent the element is.</p>
+                <a href="https://www.w3schools.com/css/css_image_transparency.asp" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+<span class="expselector">img</span> <span class="bracket">{</span>
+<span class="property">    opacity</span>: <span class="value">0.5</span>;
+<span class="bracket">}</span>
+
+<span class="expselector">div</span> <span class="bracket">{</span>
+<span class="property">    background</span>: <span class="value">rgba(33, 92, 139, 0.8)</span>;
+<span class="bracket">}</span>
+                    </code>
+                    <br>
+                    <p>Output: </p>
+                    <img src="img-outputs/opacity.png" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+      
+            <div class="float" id="floatPage">
+                <h4>CSS Float</h4>
+                <p>The float property is used for positioning and formatting elements within its container.</p> 
+                <a href="https://www.w3schools.com/cssref/pr_class_float.php" class="see-more" target="_blank">See more</a>
+                <div class="example">
+                    <p>Example:</p>
+                    <code>
+<span class="expselector">div</span> <span class="bracket">{</span>
+<span class="property">    background-color</span>: <span class="value">gold</span>;
+<span class="property">    float</span>: <span class="value">right</span>;
+<span class="property">    text-align</span>: <span class="value">center</span>;
+<span class="property">    width</span>: <span class="value">30%</span>;
+<span class="bracket">}</span>
+                    </code>
+                    <p>Output: </p>
+                    <img src="img-outputs/float.PNG" alt="Introduction Output" class="output-image">
+                </div>
+            </div>
+          
+        </div>
+    </div>
+
+    <div id="rcorners2"> 
+        <div class="exercisesPage" id="exercisesPage">
+        <h3>CSS EXERCISES</h3>
+        <p>Choose the correct answer for each question</p>
+    
+        <form id="cssQuizForm">
+            <h4>CSS Selectors - Fill in the Blanks</h4>
+            <ol>
+                <li><p>The  <input type="text" name="Selector1" placeholder="Selector type">  selector selects HTML elements based on the element's name.</p></li>
+                <li><p>The  <input type="text" name="Selector2" placeholder="Selector type">  selector is used to select an element with a specific ID.</p></li>
+                <li><p>The  <input type="text" name="Selector3" placeholder="Selector type">  selector selects elements with a specific class.</p></li>
+                <li><p>The  <input type="text" name="Selector4" placeholder="Selector type">  selector is used to select all elements.</p></li>
+                <li><p>Multiple selectors can be grouped using a <input type="text" name="Selector5" placeholder="What separator?">.</p></li>
+            </ol>
+    
+            <h4>CSS Syntax - Multiple Choices</h4>
+            <ol>
+                <li><p>What is the correct format for a CSS rule? <br><br>
+                <select name="Syntax1">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) selector { property: value; }</option>
+                    <option value="B">B.) selector ( property: value )</option>
+                    <option value="C">C.) selector { value: property; }</option>
+                    <option value="D">D.) property: value;</option>
+                </select><br><br>       
+                </p></li>
+                <li><p>Which part of the CSS rule below is the selector? 
+                <p><code>p { color: blue; }</code></p> 
+                <select name="Syntax2">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) color</option>
+                    <option value="B">B.) p</option>
+                    <option value="C">C.) blue</option>
+                    <option value="D">D.) color: blue</option>
+                </select><br><br>
+                </p></li>
+                <li><p>In the CSS rule below, which part is the property?
+                <p><code>h1 { font-size: 24px; }</code></p>
+                <select name="Syntax3">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) 24px</option>
+                    <option value="B">B.) h1</option>
+                    <option value="C">C.) font-size</option>
+                    <option value="D">D.) font</option>
+                </select><br><br>
+                </p></li>
+                <li><p>How do you add multiple CSS properties to a single selector? <br><br>
+                <select name="Syntax4">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) Separate them with commas</option>
+                    <option value="B">B.) Put them inside separate brackets { }</option>
+                    <option value="C">C.) List them within the same brackets, separated by semicolons</option>
+                    <option value="D">D.) Use different CSS rules for each property</option>
+                </select><br><br>
+                </p></li>
+                <li><p>What symbol is used to indicate a CSS comment? <br><br>
+                <select name="Syntax5">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) // This is a comment</option>
+                    <option value="B">B.) /* This is a comment */</option>
+                    <option value="C">C.) # This is a comment</option>
+                    <option value="D">D.) &lt;!-- This is a comment --></option>
+                </select><br><br>
+                </p></li>
+            </ol>
+    
+            <h4>How to Add CSS - True/False</h4>
+            <ol>
+                <li><p>An internal CSS is written inside a &lt;style&gt; tag placed within the &lt;body&gt; section of an HTML document.<br><br>
+                    <select name="AddCSS1">
+                        <option value="">Select answer</option>
+                        <option value="A">A.) TRUE</option>
+                        <option value="B">B.) FALSE</option>
+                    </select><br>
+                    </p></li>
+                    <li><p>An external CSS file uses the .html extension and is linked to the HTML file using the &lt;link&gt; tag.<br><br>
+                    <select name="AddCSS2">
+                        <option value="">Select answer</option>
+                        <option value="A">A.) TRUE</option>
+                        <option value="B">B.) FALSE</option>
+                    </select><br>
+                    </p></li>
+                    <li><p>External CSS takes priority over both internal and external CSS if all are applied to the same element.<br><br>
+                    <select name="AddCSS3">
+                        <option value="">Select answer</option>
+                        <option value="A">A.) TRUE</option>
+                        <option value="B">B.) FALSE</option>
+                    </select><br>
+                    </p></li>
+                    <li><p>The rel attribute in the &lt;link&gt; tag must always be set to "stylesheet" when linking an Internal CSS file.<br><br>
+                        <select name="AddCSS4">
+                            <option value="">Select answer</option>
+                            <option value="A">A.) TRUE</option>
+                            <option value="B">B.) FALSE</option>
+                        </select><br>
+                        </p></li>
+                        <li><p>Internal CSS can be used to style multiple pages of a website at once.<br><br>
+                            <select name="AddCSS5">
+                                <option value="">Select answer</option>
+                                <option value="A">A.) TRUE</option>
+                                <option value="B">B.) FALSE</option>
+                            </select><br>
+                            </p></li>
+            </ol>
+    
+            <h4>CSS Comments - Matching</h4>
+            <label>Match the examples with their descriptions:</label><br><br>
+            <ol type="A">
+                <li><p>/* Color styles */</label><br><br>
+                <select name="Comments1">
+                    <option value="">Select answer</option>
+                    <option value="1">1. Correct syntax for a CSS comment</option>
+                    <option value="2">2. Incorrect comment syntax in CSS</option>
+                    <option value="3">3. HTML-style comment not for CSS</option>
+                </select><br>
+                </p></li>
+                <li><p>// Font settings</label><br><br>
+                <select name="Comments2">
+                    <option value="">Select answer</option>
+                    <option value="1">1. Correct syntax for a CSS comment</option>
+                    <option value="2">2. Incorrect comment syntax in CSS</option>
+                    <option value="3">3. HTML-style comment not for CSS</option>
+                </select><br>
+                </p></li>
+                <li><p>&lt;!-- Margin setup --></label><br><br>
+                <select name="Comments3">
+                    <option value="">Select answer</option>
+                    <option value="1">1. Correct syntax for a CSS comment</option>
+                    <option value="2">2. Incorrect comment syntax in CSS</option>
+                    <option value="3">3. HTML-style comment not for CSS</option>
+                </select><br>
+                </p></li>
+            </ol>
+    
+            <h4>CSS Colors - Fill in the Blanks</h4>
+            <ol>
+                <li><p>The CSS property used to change the text color is <input type="text" name="Colors1">.
+                </p></li>
+                <li><p>You can specify colors in CSS using names, HEX codes, or <input type="text" name="Colors2"> values.
+                </p></li>
+                <li><p>The HEX code for pure red is <input type="text" name="Colors3">.
+                </p></li>
+                <li><p>The rgba() function allows you to define a color with a specific <input type="text" name="Colors4"> value.
+                </p></li>
+                <li><p>The CSS property used to change the background color is <input type="text" name="Colors5">.
+                </p></li>
+            </ol>
+    
+            <h4>CSS Backgrounds - Fill in the Blanks</h4>
+            <ol>
+                <li><p>The CSS property used to set a background color is background-<input type="text" name="Backgrounds1">.
+                </p></li>
+                <li><p>The CSS property used to add a background image is background-<input type="text" name="Backgrounds2">.
+                </p></li>
+                <li><p>To prevent a background image from repeating, use background-<input type="text" name="Backgrounds3">.
+                </p></li>
+                <li><p>To position a background image, use background-<input type="text" name="Backgrounds4">.
+                </p></li>
+                <li><p>To make a background image cover an entire element, use background-<input type="text" name="Backgrounds5">.
+                </p></li>
+            </ol>
+    
+            <h4>CSS Borders - Fill in the Blanks</h4>
+            <ol>
+                <li><p>To set a border, use border: <input type="text" name="Borders1">.
+                </p></li>
+                <li><p>To define a border style, use border: 2px <input type="text" name="Borders2"> black.
+                </p></li>
+                <li><p>To set a border width, use border-width: <input type="text" name="Borders3">; border-style: solid; border-color: blue.
+                </p></li>
+            </ol>
+    
+            <h4>CSS Margin - Fill in the Blanks</h4>
+            <ol>
+                <li><p>To set different margins for each side, use margin-right: <input type="text" name="Margin1">; and margin-left: <input type="text" name="Margin2">.
+                </p></li>
+            </ol>
+            <h4>CSS Padding - Fill in the Blanks</h4>
+            <ol>
+                <li><p>To use a percentage for padding, use padding: <input type="text" name="Padding1">%.
+                </p></li>
+                <li><p>To create equal padding, use padding: <input type="text" name="Padding2">px.
+                </p></li>
+                <li><p>To use shorthand padding, use padding: <input type="text" name="Padding3"> 10px 20px 5px.
+                </p></li>
+            </ol>
+    
+            <h4>CSS Height, Width, and Max-Width - Fill in the Blanks</h4>
+            <ol>
+               <li><p>To set both width and height, use width: <input type="text" name="HeightWidth1">px; height: <input type="text" name="HeightWidth2">px.
+               </p></li>
+            </ol>
+
+            <h4>CSS Box Model - Fill in the Blanks</h4>
+            <ol>
+                <li><p>To complete the box model, use padding: <input type="text" name="BoxModel1">; border: <input type="text" name="BoxModel2">; margin: <input type="text" name="BoxModel3">.
+                </p></li>
+            </ol>
+
+            <h4>CSS Outline - Fill in the Blanks</h4>
+            <ol>
+                <li><p>To set the outline width, use outline-width: <input type="text" name="Outline1">px; outline-style: solid; outline-color: <input type="text" name="Outline2">.
+                </p></li>
+            </ol>
+            
+            <h4>CSS Text - Fill in the Blanks</h4>
+            <ol>
+                <li><p>To change text color, use color: <input type="text" name="Text1">.
+                </p></li>
+                <li><p>To define font family, use font-family: 'Arial', <input type="text" name="Text2">.
+                </p></li>
+                <li><p>To apply text alignment, use text-align: <input type="text" name="Text3">.
+                </p></li>
+            </ol>
+    
+            <h4>CSS Font - Fill in the Blanks</h4>
+            <ol>
+                <li><p>To set font-family: <input type="text" name="Font1">.
+                </p></li>
+                <li><p>To set font-weight: <input type="text" name="Font2">.
+                </p></li>
+                <li><p>To set font-size: <input type="text" name="Font3">.
+                </p></li>
+            </ol>
+            
+            <h4>CSS Icons - Multiple Choices</h4>
+            <ol>
+                <li><p>Which HTML element is used to link the Font Awesome icon library? <br><br>
+                <select name="Icons1">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) &lt;link&gt;</option>
+                    <option value="B">B.) &lt;i&gt;</option>
+                    <option value="C">C.) &lt;img&gt;</option>
+                </select><br>
+                </p></li>
+                <li><p>How do you add a cloud icon using Font Awesome? <br><br>
+                <select name="Icons2">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) &lt;i class="fa fa-cloud"&gt;&lt;/i&gt;</option>
+                    <option value="B">B.) &lt;img src="cloud-icon.png"&gt;</option>
+                </select><br>
+                </p></li>
+                <li><p>Which Font Awesome class is used to display a heart icon? <br><br>
+                <select name="Icons3">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) fa fa-heart</option>
+                    <option value="B">B.)fa fa-star</option>
+                </select><br>
+                </p></li>
+            </ol>
+    
+            <h4>CSS Links - Fill in the Blanks</h4>
+            <ol>
+                <li><p>The <input type="text" name="Links1"> pseudo-class is used to style a link when the mouse hovers over it.
+                </p></li>
+                <li><p>To change the color of a link, use the <input type="text" name="Links2"> property in CSS.
+                </p></li>
+                <li><p>The <input type="text" name="Links3"> pseudo-class is used to style a link that the user has already visited.
+                </p></li>
+            </ol>
+            
+            <h4>CSS List - Mulriple Choices</h4>
+            <ol>
+                <li><p>What CSS property is used to change the bullet style of a list? <br><br>
+                <select name="List1">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) list-style-type</option>
+                    <option value="B">B.) bullet-style</option>
+                </select><br>
+                </p></li>
+                <li><p>Which CSS property removes default bullets from a list? <br><br>
+                <select name="List2">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) display: none;</option>
+                    <option value="B">B.) list-style-type: none;</option>
+                </select><br>
+                </p></li>
+            </ol>
+
+            <h4>CSS Tables - Multiple Choice</h4>
+            <ol>
+                <li><p>What CSS property is used to add space between table cells? <br><br>
+                <select name="Tables1">
+                        <option value="">Select answer</option>
+                        <option value="A">A.) cellspacing</option>
+                        <option value="B">B.) padding</option>
+                        <option value="C">C.) border-spacing</option>
+                </select><br>
+                </p></li>
+                <li><p>Which CSS property is used to set the width of a table? <br><br>
+                <select name="Tables2">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) table-width</option>
+                    <option value="B">B.) width</option>
+                    <option value="C">C.) table-layout</option>
+                </select><br>
+                </p></li>
+                <li><p>What value should be used for the border-collapse property to merge adjacent cell borders? <br><br>
+                <select name="Tables3">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) collapse</option>
+                    <option value="B">B.) separate</option>
+                </select><br>
+                </p></li>
+            </ol>
+    
+            <h4>CSS Layout - Display Property</h4>
+            <ol>
+                <li><p>What value of the display property makes an element block-level? <br><br>
+                <select name="Display1">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) inline</option>
+                    <option value="B">B.) block</option>
+                </select><br>
+                </p></li>
+                <li><p>Which display property value creates a flexible box layout? <br><br>
+                <select name="Display2">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) block</option>
+                    <option value="B">B.) flex</option>
+                    <option value="C">C.) grid</option>
+                </select><br>
+                </p></li>
+                <li><p>What does the display: none; property do? <br><br>
+                <select name="Display3">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) Hides element but keeps space in layout</option>
+                    <option value="B">B.) Shows element</option>
+                    <option value="C">C.) Removes element from document flow</option>
+                </select><br>
+                </p></li>
+            </ol>
+            
+            <h4>CSS Layout - Position Property</h4>
+            <ol>
+                <li><p>What does position: relative; do to an element? <br><br>
+                <select name="Position1">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) Removes from document flow</option>
+                    <option value="B">B.) Positions relative to normal position</option>
+                </select><br>
+                </p></li>
+                <li><p>Which position value makes an element stay fixed in the viewport? <br><br>
+                <select name="Position2">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) static</option>
+                    <option value="B">B.) absolute</option>
+                    <option value="C">C.) fixed</option>
+                </select><br>
+                </p></li>
+                <li><p>If an element is set to position: absolute;, what is true? <br><br>
+                <select name="Position3">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) Positioned relative to viewport</option>
+                    <option value="B">B.) Doesn't affect layout of surrounding elements</option>
+                    <option value="C">C.) Both A and B</option>
+                </select><br>
+                </p></li>
+            </ol>
+            
+            <h4>CSS Layout - Alignment</h4>
+            <ol>
+                <li><p>To center an element horizontally, set left and right margins to <input type="text" name="Alignment1">.
+                </p></li>
+                <li><p>The <input type="text" name="Alignment2">property vertically aligns inline or table-cell elements within a container.
+                </p></li>
+                <li><p>Using Flexbox, <input type="text" name="Alignment3"> centers items vertically in a container.                
+                </p></li>
+            </ol>
+            
+            <h4>CSS Buttons - Fill in the Blanks</h4>
+            <ol>
+                <li><p>To change a button's background color, use the <input type="text" name="Buttons1"> property.
+                </p></li>
+                <li><p>To change a button's text color, use the <input type="text" name="Buttons2"> property.
+                </p></li>
+                <li><p>To add padding inside a button, use the <input type="text" name="Buttons3"> property to create space between content and border.
+                </p></li>
+            </ol>
+            
+            <h4>CSS Images - Fill in the Blanks</h4>
+            <ol>
+                <li><p>To set a background image, use the <input type="text" name="Images1"> property.
+                </p></li>            
+                <li><p>To control image size, use the <input type="text" name="Images2"> property with values like contain or cover.
+                </p></li>
+                <li><p>To make an image responsive, set its width to 100% and height to <input type="text" name="Images3">.
+                </p></li>
+            </ol>
+            
+            <h4>CSS Opacity - Multiple Choices</h4>
+            <ol>
+                <li><p>What is the range of values that the opacity property can take in CSS? <br><br>
+                <select name="Opacity1">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) 0 to 1</option>
+                    <option value="B">B.) 0 to 100</option>
+                    <option value="D">C.) 1 to 10</option>
+                </select><br>
+                </p></li>
+                <li><p>What does an opacity value of 0 represent? <br><br>
+                <select name="Opacity2">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) Fully visible</option>
+                    <option value="B">B.) Semi-transparent</option>
+                    <option value="C">C.) Fully transparent</option>
+                </select><br>
+                </p></li>
+                <li><p>If you set an element's opacity to 0.5, what happens? <br><br>
+                <select name="Opacity3">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) Element is invisible</option>
+                    <option value="B">B.) Element is fully visible</option>
+                    <option value="C">C.) Element is semi-transparent</option>
+                </select><br>
+                </p></li>
+            </ol>
+
+            <h4>CSS Float - Multiple Choices</h4>
+            <ol>
+                <li><p>What does the float property in CSS primarily do?<br><br>
+                <select name="Float1">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) Aligns text to the center of an element</option>
+                    <option value="B">B.) Positions an element to the left or right within its container </option>
+                    <option value="D">C.) Changes the font color</option>
+                </select><br>
+                </p></li>
+                <li><p>When an element is floated, what happens to the elements that come after it in the normal flow? <br><br>
+                <select name="Float2">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) They move up next to the floated element</option>
+                    <option value="B">B.) They disappear</option>
+                    <option value="C">C.) They get a new background color</option>
+                </select><br>
+                </p></li>
+                <li><p>Which CSS property is often used to clear floats and prevent layout issues? <br><br>
+                <select name="Float3">
+                    <option value="">Select answer</option>
+                    <option value="A">A.) align</option>
+                    <option value="B">B.) margin</option>
+                    <option value="C">C.) clear</option>
+                </select><br>
+                </p></li>
+            </ol>
+
+        </form>
+        <button type="button" class="exercise-button" onclick="submitQuiz()">Submit Quiz</button>
+        <div id="quizResult"></div>
+        
+        <button class="main-button" onclick="showMain()">Back to Main</button>
+        </div>
+    </div>
+
+    <div id="developersPage" class="developers">
+        <h1>Developers</h1>
+        <div class="figure-container">
+            <figure>
+                <img src="developers/Balaro.jpg" alt="Balaro" class="developer-image">
+                <figcaption>
+                    <p>Balaro, Reggiemea</p>
+                </figcaption> 
+            </figure>
+            <figure>
+                <img src="developers/Malicdem.jpg" alt="Malicdem" class="developer-image">
+                <figcaption>
+                    <p>Malicdem, Andrea Sai</p>
+                </figcaption> 
+            </figure>
+            <figure>
+                <img src="developers/Garingalo.jpg" alt="Garingalo" class="developer-image">
+                <figcaption>
+                    <p>Garingalo, Lester Jude</p>
+                </figcaption> 
+            </figure>
+            <figure>
+                <img src="developers/Canon.jpg" alt="Canon" class="developer-image">
+                <figcaption>
+                    <p>Canon, Jessica Mae</p>
+                </figcaption> 
+            </figure>
+            <figure>
+                <img src="developers/Mabasa.jpg" alt="Mabasa" class="developer-image">
+                <figcaption>
+                    <p>Mabasa, Angelica</p>
+                </figcaption> 
+            </figure>
+        </div>
+        <div class="submitted-to-container">
+            <h2>Submitted To:</h2>
+            <img src="developers/DocLea.jpg" alt="DocLea">
+            <p>Dr. Lea S. Nisperos</p>
+        </div>
+    </div>
+        
+    <script>
+
+        function showTopic(topic) {
+            const developersPage = document.getElementById('developersPage');
+            const topicsContent = document.getElementById('topics-content');
+            const topicsPages = document.getElementById('topics-pages');
+            const missionVision = document.getElementById('missionVision');
+            const exercisesPage = document.getElementById('exercisesPage');
+           
+            exercisesPage.style.display = 'none';
+    
+            if (developersPage.classList.contains('show')) {
+                developersPage.classList.remove('show');
+                setTimeout(() => {
+                    developersPage.style.display = 'none';
+                    topicsContent.style.transform = 'translateX(100%)';
+                    topicsPages.style.display = 'block';
+                    missionVision.style.display = 'block';
+                }, 500);
+            } else {
+                topicsPages.style.display = 'block';
+            }
+
+            const allTopicPages = topicsPages.children;
+            for (let i = 0; i < allTopicPages.length; i++) {
+                allTopicPages[i].style.display = 'none';
+            }
+    
+            const selectedTopicPage = document.getElementById(topic + 'Page');
+            if (selectedTopicPage) {
+                selectedTopicPage.style.display = 'block';
+                selectedTopicPage.classList.add('show'); 
+            }
+         
+         	const links = document.querySelectorAll('#contentUL a');
+            links.forEach(link => link.classList.remove('active'));
+            
+            event.target.classList.add('active');
+    
+            console.log(`Showing content for ${topic}`);
+
+            closeMenu();
+        }
+      
+        function showTopics() {
+            const mainContent = document.getElementById('main-content');
+            const topicsContent = document.getElementById('topics-content');
+            const developersPage = document.getElementById('developersPage');
+            const topicsPages = document.getElementById('topics-pages');
+         	const missionVision = document.getElementById('missionVision');
+            const exercisesPage = document.getElementById('exercisesPage');
+            
+            exercisesPage.style.display = 'none';
+            topicsPages.style.display = 'block';
+      		missionVision.style.display = 'block';
+
+            if (developersPage.classList.contains('show')) {
+                developersPage.classList.remove('show');
+                setTimeout(() => {
+                    developersPage.style.display = 'none';
+                    topicsContent.style.transform = 'translateX(0)';
+                  	missionVision.style.transform = 'translateX(0)';
+                  	topicsPages.style.transform = 'translateX(0)';
+                    topicsContent.classList.add('show'); 
+                }, 500);
+            } else {
+                mainContent.style.transform = 'translateX(-100%)';
+                topicsContent.style.transform = 'translateX(0)'; 
+                topicsContent.classList.add('show'); 
+            }
+    
+            closeMenu();
+        }
+    
+        function showMain() {
+            const mainContent = document.getElementById('main-content');
+            const topicsContent = document.getElementById('topics-content');
+            const topicsPages = document.getElementById('topics-pages');
+        	const missionVision = document.getElementById('missionVision');
+            const exercisesPage = document.getElementById('exercisesPage');
+            
+            exercisesPage.style.display = 'none';
+            topicsPages.style.display = 'none';
+    		missionVision.style.display = 'none';
+            mainContent.style.transform = 'translateX(0)';
+            topicsContent.style.transform = 'translateX(100%)';
+            topicsContent.classList.remove('show'); 
+            missionVision.classList.remove('show'); 
+
+            closeMenu();
+        }
+    
+        function showDevelopers() {
+            const mainContent = document.getElementById('main-content');
+            const topicsContent = document.getElementById('topics-content');
+            const developersPage = document.getElementById('developersPage');
+            const topicsPages = document.getElementById('topics-pages');
+            const missionVision = document.getElementById('missionVision');
+            const exercisesPage = document.getElementById('exercisesPage');
+            
+            exercisesPage.style.display = 'none';
+            topicsPages.style.display = 'none';
+            missionVision.style.display = 'none';
+            mainContent.style.transform = 'translateX(-100%)';
+            topicsContent.style.transform = 'translateX(-100%)';
+    
+            developersPage.style.display = 'block';
+            setTimeout(() => {
+               developersPage.classList.add('show');
+            }, 50);
+            
+            closeMenu();
+        }
+    
+        function showHome() {
+            const mainContent = document.getElementById('main-content');
+            const topicsContent = document.getElementById('topics-content');
+            const developersPage = document.getElementById('developersPage');
+            const topicsPages = document.getElementById('topics-pages');
+          	const missionVision = document.getElementById('missionVision');
+            const exercisesPage = document.getElementById('exercisesPage');
+            
+            exercisesPage.style.display = 'none';
+            topicsPages.style.display = 'none';
+    		missionVision.style.display = 'none';
+
+            if (developersPage.classList.contains('show')) {
+                developersPage.classList.remove('show');
+                setTimeout(() => {
+                    developersPage.style.display = 'none';
+                    mainContent.style.transform = 'translateX(0)';
+                    mainContent.classList.add('show');
+                }, 500);
+            } else {
+                mainContent.style.transform = 'translateX(0)';
+                topicsContent.style.transform = 'translateX(100%)';
+                topicsContent.classList.remove('show'); 
+            }
+    
+            closeMenu(); 
+        }
+    
+        function toggleMenu() {
+            const hamburger = document.querySelector('.hamburger');
+            const popupMenu = document.querySelector('.popup-menu');
+            hamburger.classList.toggle('active');
+            popupMenu.classList.toggle('active');
+        }
+    
+        document.addEventListener('click', function(event) {
+            const hamburger = document.querySelector('.hamburger');
+            const popupMenu = document.querySelector('.popup-menu');
+            
+            if (!hamburger.contains(event.target) && !popupMenu.contains(event.target)) {
+                hamburger.classList.remove('active');
+                popupMenu.classList.remove('active');
+            }
+        });
+    
+        window.addEventListener('load', function() {
+            const mainContent = document.getElementById('main-content');
+            mainContent.classList.add('show');
+        });
+     
+        function moveIcon(isFocused) {
+            const searchInput = document.getElementById('searchInput');
+            const icon = document.querySelector('.at-magnifying-glass');
+    
+
+            if (isFocused) {
+                searchInput.classList.add('active');
+                
+            } else {
+                searchInput.classList.remove('active');
+            }
+        }
+
+        function showExercises() {
+            const mainContent = document.getElementById('main-content');
+            const topicsContent = document.getElementById('topics-content');
+            const developersPage = document.getElementById('developersPage');
+            const topicsPages = document.getElementById('topics-pages');
+            const missionVision = document.getElementById('missionVision');
+            const exercisesPage = document.getElementById('exercisesPage');
+            
+            topicsPages.style.display = 'none';
+            missionVision.style.display = 'none';
+            developersPage.style.display = 'none';
+            mainContent.style.transform = 'translateX(-100%)';
+            topicsContent.style.transform = 'translateY(-100%)';
+    
+            exercisesPage.style.display = 'block';
+            setTimeout(() => {
+               exercisesPage.classList.add('show');
+            }, 50);
+
+            closeMenu();
+        }
+
+        function hideMenuOnSearch() {
+            const hamburger = document.querySelector('.hamburger');
+            const popupMenu = document.querySelector('.popup-menu');
+    
+            hamburger.classList.remove('active');
+            popupMenu.classList.remove('active');
+        }
+
+        function closeMenu() {
+            const hamburger = document.querySelector('.hamburger');
+            const popupMenu = document.querySelector('.popup-menu');
+            hamburger.classList.remove('active');
+            popupMenu.classList.remove('active');
+        }
+
+        function searchFunction() {
+            var input, filter, ul, li, a, i, txtValue;
+            const hamburger = document.querySelector('.hamburger');
+            const popupMenu = document.querySelector('.popup-menu');
+            input = document.getElementById("searchInput");
+            filter = input.value.toUpperCase();
+            ul = document.getElementById("contentUL");
+            li = ul.getElementsByTagName("li");
+
+            for (i = 0; i < li.length; i++) {
+                a = li[i].getElementsByTagName("a")[0];
+                txtValue = a.textContent || a.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    li[i].style.display = "";
+                } else {
+                    li[i].style.display = "none";
+                }
+            }
+    
+            if (filter === "CSS TOPICS" || filter === "HOME" || filter === "TOPICS" || filter === "TOPIC" || filter == "CSS EXERCISE" || filter == "EXERCISE" || filter === "DEVELOPERS" || filter === "DEVELOPER") {
+                if (filter === "CSS TOPICS") {
+                    showTopics();
+                } else if (filter === "TOPICS") {
+                        showTopics();
+                } else if (filter === "TOPIC") {
+                        showTopics();
+                } else if (filter === "CSS EXERCISE") {
+                        showExercises();
+                } else if (filter === "EXERCISE") {
+                        showExercises();
+                } else if (filter === "DEVELOPERS") {
+                        showDevelopers();
+                } else if (filter === "DEVELOPER") {
+                        showDevelopers();
+                } else if (filter === "HOME") {
+                        showHome();
+                }
+            }
+        } 
+
+        function submitQuiz() { 
+            const correctAnswers = {
+                
+                Selector1: "element",
+                Selector2: "ID",
+                Selector3: "class",
+                Selector4: "universal",
+                Selector5: "comma",
+
+                Syntax1: "A",
+                Syntax2: "B",
+                Syntax3: "C",
+                Syntax4: "C",
+                Syntax5: "B",
+
+                AddCSS1: "B",
+                AddCSS2: "B",
+                AddCSS3: "A",
+                AddCSS4: "A",
+                AddCSS5: "B",
+
+                Comments1: "1",
+                Comments2: "2",
+                Comments3: "3",
+
+                Colors1: "color",
+                Colors2: "RGB",
+                Colors3: "#FF0000",
+                Colors4: "opacity",
+                Colors5: "background-color",
+
+                Backgrounds1: "color",
+                Backgrounds2: "image",
+                Backgrounds3: "repeat",
+                Backgrounds4: "position",
+                Backgrounds5: "size",
+
+                Borders1: "solid 1px black",
+                Borders2: "solid",
+                Borders3: "3px",
+
+                Margin1: "15px",
+                Margin2: "20px",
+
+                Padding1: "15",
+                Padding2: "20",
+                Padding3: "5px",
+
+                HeightWidth1: "300",
+                HeightWidth2: "200",
+
+                BoxModel1: "10px",
+                BoxModel2: "1px solid black",
+                BoxModel3: "5px",
+
+                Outline1: "5",
+                Outline2: "blue",
+
+                Text1: "red",
+                Text2: "sans-serif",
+                Text3: "center",
+
+                Font1: "Arial, sans-serif",
+                Font2: "bold",
+                Font3: "16px",
+
+                Icons1: "A",
+                Icons2: "A",
+                Icons3: "A",
+
+                Links1: "hover",
+                Links2: "color",
+                Links3: "visited",
+
+                List1: "A",
+                List2: "B",
+
+                Tables1: "C",
+                Tables2: "B",
+                Tables3: "A",
+
+                Display1: "B",
+                Display2: "B",
+                Display3: "C",
+
+                Position1: "B",
+                Position2: "C",
+                Position3: "B",
+
+                Alignment1: "auto",
+                Alignment2: "vertical-align",
+                Alignment3: "align-items: center",
+
+                Buttons1: "background-color",
+                Buttons2: "color",
+                Buttons3: "padding",
+
+                Images1: "background-image",
+                Images2: "background-size",
+                Images3: "auto",
+
+                Opacity1: "A",
+                Opacity2: "C",
+                Opacity3: "C",
+
+                Float1: "B",
+                Float2: "A",
+                Float3: "C"
+            };
+
+            let score = 0;
+            let totalQuestions = Object.keys(correctAnswers).length;
+            let results = "<h3>Quiz Results</h3>";
+
+            results += `
+                <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                <thead>
+                <tr style="background-color: #0e3b5f; color: white;">
+                    <th style="padding: 10px; border: 1px solid #ddd;">Question</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Your Answer</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Correct Answer</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Result</th>
+                </tr>
+                </thead>
+                <tbody>
+                `;
+
+            for (let question in correctAnswers) {
+                let userAnswer = document.querySelector(`[name="${question}"]`).value;
+                let isCorrect = userAnswer.toLowerCase() === correctAnswers[question].toLowerCase();
+                if (isCorrect) score++;
+
+       
+                results += `
+                    <tr style="background-color: ${isCorrect ? 'rgba(0, 255, 0, 0.1)' : 'rgba(255, 0, 0, 0.1)'}">
+                    <td style="padding: 10px; border: 1px solid #ddd;">${question}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">${userAnswer}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">${correctAnswers[question]}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">${isCorrect ? '✓' : '✗'}</td>
+                    </tr>
+                `;
+            }
+                let percentage = (score / totalQuestions) * 100;
+                results += `
+                    </tbody>
+                </table>
+                <h3 style="color: gold;">Your score: ${score}/${totalQuestions} (${percentage.toFixed(2)}%)</h3>
+                `;
+
+                document.getElementById('quizResult').innerHTML = results;
+        }
+    </script>    
+</body>
+</html>
